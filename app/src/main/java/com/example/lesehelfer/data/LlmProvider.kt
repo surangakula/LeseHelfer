@@ -4,6 +4,7 @@ import com.example.lesehelfer.BuildConfig
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.HttpException
 import retrofit2.Retrofit
 
 class LlmProvider {
@@ -18,10 +19,10 @@ class LlmProvider {
         retrofit.create(OpenRouterApi::class.java)
     }
 
-    suspend fun analyzeGermanText(text: String, cefrLevel: String): AnalysisResult {
-        val apiKey = BuildConfig.OPENROUTER_API_KEY
+    suspend fun analyzeGermanText(text: String, cefrLevel: String, apiKeyOverride: String? = null): AnalysisResult {
+        val apiKey = if (!apiKeyOverride.isNullOrBlank()) apiKeyOverride else BuildConfig.OPENROUTER_API_KEY
         if (apiKey.isBlank()) {
-            throw IllegalStateException("OpenRouter API key is missing. Please set OPENROUTER_API_KEY in local.properties.")
+            throw IllegalStateException("OpenRouter API key is missing. Please set it in Settings.")
         }
 
         val prompt = """
@@ -31,7 +32,8 @@ class LlmProvider {
               "summary": "Brief summary in English",
               "difficultWords": [{"word": "German word", "translation": "English translation", "explanation": "Brief usage explanation"}],
               "grammarPoints": [{"topic": "Grammar topic name", "explanation": "Explanation tailored to $cefrLevel level"}],
-              "translatedSentenceBreakdown": [{"germanSentence": "Sentence in German", "englishTranslation": "English translation", "grammaticalNotes": "Notes"}]
+              "translatedSentenceBreakdown": [{"germanSentence": "Sentence in German", "englishTranslation": "English translation", "grammaticalNotes": "Notes"}],
+              "exercises": [{"question": "Quiz question based on grammar/vocab", "options": ["A", "B", "C", "D"], "correctAnswerIndex": 0, "explanation": "Explanation"}]
             }
             
             German text to analyze:
@@ -39,22 +41,32 @@ class LlmProvider {
         """.trimIndent()
 
         val request = ChatCompletionRequest(
-            model = "openai/gpt-4o-mini",
+            model = "openrouter/auto",
             messages = listOf(
-                ChatMessage(role = "system", content = "You are a helpful German language learning assistant that responds only in valid JSON."),
+                ChatMessage(role = "system", content = "You are a helpful German language learning assistant. Always respond with valid JSON only, no markdown formatting."),
                 ChatMessage(role = "user", content = prompt)
-            ),
-            response_format = ResponseFormat(type = "json_object")
+            )
         )
 
-        val response = api.getChatCompletion(
-            authorization = "Bearer $apiKey",
-            request = request
-        )
+        val response = try {
+            api.getChatCompletion(
+                authorization = "Bearer $apiKey",
+                request = request
+            )
+        } catch (e: HttpException) {
+            val errorBody = e.response()?.errorBody()?.string() ?: e.message()
+            throw IllegalStateException("OpenRouter Error (${e.code()}): $errorBody")
+        }
 
         val content = response.choices.firstOrNull()?.message?.content 
             ?: throw IllegalStateException("Empty response from LLM")
 
-        return json.decodeFromString<AnalysisResult>(content)
+        val cleanedContent = content.trim()
+            .removePrefix("```json")
+            .removePrefix("```")
+            .removeSuffix("```")
+            .trim()
+
+        return json.decodeFromString<AnalysisResult>(cleanedContent)
     }
 }

@@ -35,7 +35,8 @@ data class AnalysisResult(
     val summary: String,
     val difficultWords: List<DifficultWord>,
     val grammarPoints: List<GrammarPoint>,
-    val translatedSentenceBreakdown: List<SentenceBreakdown>
+    val translatedSentenceBreakdown: List<SentenceBreakdown>,
+    val exercises: List<Exercise> = emptyList()
 )
 
 @Serializable
@@ -56,4 +57,12 @@ data class SentenceBreakdown(
     val germanSentence: String,
     val englishTranslation: String,
     val grammaticalNotes: String
+)
+
+@Serializable
+data class Exercise(
+    val question: String,
+    val options: List<String>,
+    val correctAnswerIndex: Int,
+    val explanation: String
 )

@@ -65,6 +65,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
     implementation(libs.retrofit)
     implementation(libs.okhttp)
+    implementation(libs.jsoup)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit.serialization.converter)
     testImplementation(libs.junit)
