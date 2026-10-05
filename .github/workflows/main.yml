@@ -17,4 +17,4 @@ jobs:
         env:
           OPENAI.KEY: ${{ secrets.OPENROUTER_KEY }}
           OPENAI.API_BASE: "https://openrouter.ai"
-          CONFIG.MODEL: "google/gemini-2.5-flash:free"
+          PR_AGENT.CUSTOM_MODEL: "google/gemini-2.5-flash:free"
