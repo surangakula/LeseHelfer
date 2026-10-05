@@ -12,14 +12,9 @@ jobs:
       pull-requests: write
       contents: write
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Run CodiumAI PR Agent
+      - name: Run PR Agent
         uses: Codium-ai/pr-agent@main
         env:
           OPENAI.KEY: ${{ secrets.OPENROUTER_KEY }}
           OPENAI.API_BASE: "https://openrouter.ai"
-          PR_AGENT.CUSTOM_MODEL: "google/gemini-2.5-flash:free"
+          CONFIG.MODEL: "google/gemini-2.5-flash:free"
