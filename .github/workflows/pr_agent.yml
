@@ -1,4 +1,4 @@
-name: Gemini PR Agent
+name: OpenRouter PR Agent
 on:
   issue_comment:
     types: [created]
@@ -20,6 +20,6 @@ jobs:
       - name: Run CodiumAI PR Agent
         uses: Codium-ai/pr-agent@main
         env:
-          OPENAI.KEY: ${{ secrets.GEMINI_API_KEY }}
-          OPENAI.API_TYPE: "google_ai"
-          PR_AGENT.CUSTOM_MODEL: "gemini-2.5-flash"
+          OPENAI.KEY: ${{ secrets.OPENROUTER_KEY }}
+          OPENAI.API_BASE: "https://openrouter.ai/api/v1"
+          PR_AGENT.CUSTOM_MODEL: "google/gemini-2.5-flash:free"
