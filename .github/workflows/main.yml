@@ -5,7 +5,7 @@ on:
 
 jobs:
   pr_agent_job:
-    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/') }}
+    if: ${{ startsWith(github.event.comment.body, '/') }}
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -16,6 +16,7 @@ jobs:
         uses: Codium-ai/pr-agent@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_KEY: ${{ secrets.OPENROUTER_KEY }}
           OPENAI__KEY: ${{ secrets.OPENROUTER_KEY }}
           OPENAI__API_BASE: "https://openrouter.ai/api/v1"
           CONFIG__MODEL: "openrouter/google/gemini-2.5-flash"
