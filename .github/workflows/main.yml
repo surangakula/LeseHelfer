@@ -5,7 +5,7 @@ on:
 
 jobs:
   pr_agent_job:
-    if: startswith(github.event.comment.body, '/ask-agent')
+    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/') }}
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -15,6 +15,9 @@ jobs:
       - name: Run PR Agent
         uses: Codium-ai/pr-agent@main
         env:
-          OPENAI.KEY: ${{ secrets.OPENROUTER_KEY }}
-          OPENAI.API_BASE: "https://openrouter.ai"
-          PR_AGENT.CUSTOM_MODEL: "google/gemini-2.5-flash:free"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI__KEY: ${{ secrets.OPENROUTER_KEY }}
+          OPENAI__API_BASE: "https://openrouter.ai/api/v1"
+          CONFIG__MODEL: "openrouter/google/gemini-2.5-flash"
+          CONFIG__FALLBACK_MODELS: '["openrouter/google/gemini-2.5-flash"]'
+          CONFIG__CUSTOM_MODEL_MAX_TOKENS: "100000"
