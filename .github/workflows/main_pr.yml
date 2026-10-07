@@ -16,13 +16,13 @@ jobs:
       - name: Run PR Agent
         uses: Codium-ai/pr-agent@main
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
-          # Use the exact system variable name mapping
-          GITHUB_EVENT_PATH: ${{ github.env.GITHUB_EVENT_PATH || '/github/workflow/event.json' }}
+          # Keep only your OpenRouter credentials here
           OPENAI_KEY: ${{ secrets.OPENROUTER_KEY }}
           OPENAI__KEY: ${{ secrets.OPENROUTER_KEY }}
           OPENAI__API_BASE: "https://openrouter.ai"
-          CONFIG__MODEL: "openrouter/google/gemini-2.5-flash"
-          CONFIG__FALLBACK_MODELS: '["openrouter/google/gemini-2.5-flash"]'
-          CONFIG__CUSTOM_MODEL_MAX_TOKENS: "100000"
+        with:
+          # Pass the model settings through the standard 'with' block
+          args: |
+            --config.model="openrouter/google/gemini-2.5-flash"
+            --config.fallback_models="['openrouter/google/gemini-2.5-flash']"
+            --config.custom_model_max_tokens=100000
