@@ -2,7 +2,7 @@ name: OpenRouter PR Agent
 on:
  pull_request:
     types: [opened, synchronize, reopened]
-  issue_comment:
+ issue_comment:
     types: [created]
 
 jobs:
