@@ -1,13 +1,17 @@
 name: OpenRouter PR Agent
 on:
- pull_request:
+  pull_request:
     types: [opened, synchronize, reopened]
- issue_comment:
+  issue_comment:
     types: [created]
 
 jobs:
   pr_agent_job:
-    if: ${{ startsWith(github.event.comment.body, '/') }}
+    # Fixes the crash: Safely handles both PR openings AND slash comments while ignoring bot replies
+    if: |
+      github.event.sender.type != 'Bot' &&
+      (github.event_name == 'pull_request' || 
+       (github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/')))
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -19,7 +23,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
-          GITHUB_EVENT_PATH: ${{ github.env.GITHUB_EVENT_PATH }}
           OPENAI_KEY: ${{ secrets.OPENROUTER_KEY }}
           OPENAI__KEY: ${{ secrets.OPENROUTER_KEY }}
           OPENAI__API_BASE: "https://openrouter.ai/api/v1"
