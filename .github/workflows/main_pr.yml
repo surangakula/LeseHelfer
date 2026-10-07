@@ -18,16 +18,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
-          GITHUB_EVENT_PATH: ${{ github.event_path }}
-          
-          # Auth credentials
+          # Use the exact system variable name mapping
+          GITHUB_EVENT_PATH: ${{ github.env.GITHUB_EVENT_PATH || '/github/workflow/event.json' }}
           OPENAI_KEY: ${{ secrets.OPENROUTER_KEY }}
           OPENAI__KEY: ${{ secrets.OPENROUTER_KEY }}
-          
-          # Notice the extra trailing slash or standard fallback pattern for OpenRouter
           OPENAI__API_BASE: "https://openrouter.ai"
-          
-          # Configuration for model mapping
           CONFIG__MODEL: "openrouter/google/gemini-2.5-flash"
           CONFIG__FALLBACK_MODELS: '["openrouter/google/gemini-2.5-flash"]'
           CONFIG__CUSTOM_MODEL_MAX_TOKENS: "100000"
