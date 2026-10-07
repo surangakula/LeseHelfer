@@ -16,12 +16,14 @@ jobs:
       - name: Run PR Agent
         uses: Codium-ai/pr-agent@main
         env:
-          # Keep only your OpenRouter credentials here
+          # Authorizes the agent to talk to GitHub's PR API
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Authorizes the agent to talk to OpenRouter's API
           OPENAI_KEY: ${{ secrets.OPENROUTER_KEY }}
           OPENAI__KEY: ${{ secrets.OPENROUTER_KEY }}
           OPENAI__API_BASE: "https://openrouter.ai"
         with:
-          # Pass the model settings through the standard 'with' block
           args: |
             --config.model="openrouter/google/gemini-2.5-flash"
             --config.fallback_models="['openrouter/google/gemini-2.5-flash']"
