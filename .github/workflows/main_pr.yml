@@ -1,0 +1,30 @@
+name: OpenRouter PR Agent
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  issue_comment:
+    types: [created]
+
+jobs:
+  pr_agent_job:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: write
+    steps:
+      - name: Run PR Agent
+        uses: Codium-ai/pr-agent@main
+        env:
+          # Authorizes the agent to talk to GitHub's PR API
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Authorizes the agent to talk to OpenRouter's API
+          OPENAI_KEY: ${{ secrets.OPENROUTER_KEY }}
+          OPENAI__KEY: ${{ secrets.OPENROUTER_KEY }}
+          OPENAI__API_BASE: "https://openrouter.ai"
+        with:
+          args: |
+            --config.model="openrouter/google/gemini-2.5-flash"
+            --config.fallback_models="['openrouter/google/gemini-2.5-flash']"
+            --config.custom_model_max_tokens=100000
