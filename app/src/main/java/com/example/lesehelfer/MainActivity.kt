@@ -8,6 +8,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -53,30 +56,89 @@ fun ReaderScreen(
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Header Row with Title, Saved Articles Button, and Settings Button
+        // Header Row with Better Title ("LeseMeister") and Icon Buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "LeseHelfer 🇩🇪",
+                text = "🇩🇪 The German Wordplay",
                 style = MaterialTheme.typography.headlineMedium
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = { viewModel.toggleSettingsDialog(true) }) {
-                    Text("⚙️ Settings")
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                IconButton(onClick = { viewModel.toggleSettingsDialog(true) }) {
+                    Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
                 }
-                OutlinedButton(onClick = { viewModel.toggleSavedArticlesDialog(true) }) {
-                    Text("📚 Saved (${uiState.savedArticles.size})")
+                IconButton(onClick = { viewModel.toggleSavedArticlesDialog(!uiState.showSavedArticlesDialog) }) {
+                    Icon(imageVector = Icons.Default.Bookmark, contentDescription = "Saved Articles")
                 }
             }
         }
 
-        Text(
-            text = "Paste a German article or story to analyze difficult words, sentence structure, and grammar tailored to your level. (Tip: For sites like DW.com that require JavaScript, simply copy & paste the article text directly).",
-            style = MaterialTheme.typography.bodyMedium
-        )
+        // Dropdown / Expandable Section for Saved Articles
+        if (uiState.showSavedArticlesDialog) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "Saved Articles (${uiState.savedArticles.size})", style = MaterialTheme.typography.titleSmall)
+                        TextButton(onClick = { viewModel.toggleSavedArticlesDialog(false) }) {
+                            Text("Close")
+                        }
+                    }
+
+                    if (uiState.savedArticles.isEmpty()) {
+                        Text("No saved articles yet. Analyze an article and tap 'Save Article'.", style = MaterialTheme.typography.bodySmall)
+                    } else {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 250.dp)
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            uiState.savedArticles.forEach { article ->
+                                val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date(article.timestamp))
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { viewModel.selectSavedArticle(article) },
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(10.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(text = article.title, style = MaterialTheme.typography.bodyMedium)
+                                            Text(text = "Level: ${article.level} • $dateStr", style = MaterialTheme.typography.labelSmall)
+                                        }
+                                        TextButton(onClick = { viewModel.deleteSavedArticle(article.id) }) {
+                                            Text("Delete", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         // Level Selector
         Text(text = "Select CEFR Level:", style = MaterialTheme.typography.labelLarge)
@@ -97,11 +159,11 @@ fun ReaderScreen(
         OutlinedTextField(
             value = uiState.inputText,
             onValueChange = { viewModel.updateInputText(it) },
-            label = { Text("German Text / Article") },
+            label = { Text("German Text or Article URL") },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp),
-            placeholder = { Text("Fügen Sie hier Ihren deutschen Text ein...") }
+            placeholder = { Text("Fügen Sie hier Ihren deutschen Text ein oder eine URL...") }
         )
 
         if (uiState.errorMessage != null) {
@@ -300,58 +362,6 @@ fun ReaderScreen(
             dismissButton = {
                 TextButton(onClick = { viewModel.toggleSettingsDialog(false) }) {
                     Text("Cancel")
-                }
-            }
-        )
-    }
-
-    // Saved Articles Dialog
-    if (uiState.showSavedArticlesDialog) {
-        AlertDialog(
-            onDismissRequest = { viewModel.toggleSavedArticlesDialog(false) },
-            title = { Text("Saved Articles (${uiState.savedArticles.size})") },
-            text = {
-                if (uiState.savedArticles.isEmpty()) {
-                    Text("No saved articles yet. Analyze an article and tap 'Save Article'.")
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 400.dp)
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        uiState.savedArticles.forEach { article ->
-                            val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date(article.timestamp))
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { viewModel.selectSavedArticle(article) },
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(12.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(text = article.title, style = MaterialTheme.typography.titleSmall)
-                                        Text(text = "Level: ${article.level} • $dateStr", style = MaterialTheme.typography.labelSmall)
-                                    }
-                                    TextButton(onClick = { viewModel.deleteSavedArticle(article.id) }) {
-                                        Text("Delete", color = MaterialTheme.colorScheme.error)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { viewModel.toggleSavedArticlesDialog(false) }) {
-                    Text("Close")
                 }
             }
         )
