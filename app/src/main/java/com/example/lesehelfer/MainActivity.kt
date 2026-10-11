@@ -56,7 +56,7 @@ fun ReaderScreen(
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Header Row with Better Title ("LeseMeister") and Icon Buttons
+        // Header Row with Title and Icon Buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -64,9 +64,10 @@ fun ReaderScreen(
         ) {
             Text(
                 text = "🇩🇪 The German Wordplay",
-                style = MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.weight(1f)
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(0.dp)) {
                 IconButton(onClick = { viewModel.toggleSettingsDialog(true) }) {
                     Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
                 }
