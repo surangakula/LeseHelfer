@@ -27,7 +27,7 @@
 
 1. Clone the repository to your local machine:
    ```bash
-   gh repo clone surangakula/LeseHelfer
+  git clone https://github.com/surangakula/LeseHelfer.git
    ```
 
 2. Open the project folder in **Android Studio**.
