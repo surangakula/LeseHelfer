@@ -1,6 +1,6 @@
-# German Word Play 📚
+# LeseHelfer 📚
 
-**German Word Play** (Reading Helper) is a dedicated Android mobile application designed to assist readers, support language learners, and enhance text accessibility. Built natively with modern Android standards using Kotlin and Jetpack Compose.
+**LeseHelfer** (Reading Helper) is a dedicated Android mobile application designed to assist readers, support language learners, and enhance text accessibility. Built natively with modern Android standards using Kotlin and Jetpack Compose.
 
 ---
 
@@ -27,7 +27,7 @@
 
 1. Clone the repository to your local machine:
    ```bash
-  git clone https://github.com/surangakula/LeseHelfer.git
+   git clone https://github.com/surangakula/LeseHelfer.git
    ```
 
 2. Open the project folder in **Android Studio**.
